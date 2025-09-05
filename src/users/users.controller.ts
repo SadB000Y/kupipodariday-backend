@@ -12,8 +12,8 @@ import {
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
 
-import { RequestWithUser } from '../shared/types/request-with-user';
 import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
+import { RequestWithUser } from '../shared/types/request-with-user';
 
 import { Wish } from '../wishes/entities/wish.entity';
 

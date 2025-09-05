@@ -1,1 +1,1 @@
-export const MAIN_CONST = 47;
+export const SALT = 47;

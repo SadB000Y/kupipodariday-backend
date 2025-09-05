@@ -1,17 +1,11 @@
-/* Refactored mirror of kupipodariday-backend-main/src/users/entities/user.entity.ts. Public API preserved; implementation restyled. */
+import { IsEmail, IsUrl, Length } from 'class-validator';
+import { Column, Entity, OneToMany } from 'typeorm';
 
-import { Column } from 'typeorm';
-import { Entity } from 'typeorm';
-import { IsEmail } from 'class-validator';
-import { IsUrl } from 'class-validator';
-import { Length } from 'class-validator';
-import { OneToMany } from 'typeorm';
-
-import { BaseEntity } from '../../shared/base.entity';
-import { DEFAULT_USER_VALUES } from '../constants/default-user-values';
 import { Offer } from '../../offers/entities/offer.entity';
+import { BaseEntity } from '../../shared/base.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { Wishlist } from '../../wishlists/entities/wishlist.entity';
+import { DEFAULT_USER_VALUES } from '../constants/default-user-values';
 
 @Entity()
 export class User extends BaseEntity {

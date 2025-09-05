@@ -9,12 +9,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 
-import { CreateOfferDto } from './dto/create-offer.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
+import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
+import { RequestWithUser } from '../shared/types/request-with-user';
+import { CreateOfferDto } from './dto/create-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { OffersService } from './offers.service';
-import { RequestWithUser } from '../shared/types/request-with-user';
-import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
 
 @Controller('offers')
 @UseGuards(JwtGuard)

@@ -1,12 +1,7 @@
-import { ConflictException } from '@nestjs/common';
-import { DatabaseError } from 'pg';
-import { FindOneOptions } from 'typeorm';
-import { ILike } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundException } from '@nestjs/common';
-import { QueryFailedError } from 'typeorm';
-import { Repository } from 'typeorm';
+import { DatabaseError } from 'pg';
+import { FindOneOptions, ILike, QueryFailedError, Repository } from 'typeorm';
 
 import { HashService } from '../hash/hash.service';
 
@@ -31,19 +26,17 @@ export class UsersService {
     try {
       const hashedPassword = await this.hashService.hash(password);
 
-      const user = this.usersRepository.create(
-        {
-          ...createUserDto,
-          password: hashedPassword,
-        }
-      );
+      const user = this.usersRepository.create({
+        ...createUserDto,
+        password: hashedPassword,
+      });
 
       return await this.usersRepository.save(user);
     } catch (error: unknown) {
       if (error instanceof QueryFailedError) {
         const pgError = error.driverError as DatabaseError;
         if (pgError.code === '23505') {
-          throw new ConflictException('Пользователь с таким email или ником уже существует');
+          throw new ConflictException('Ошибка! Пользователь с таким email или ником уже существует');
         }
       }
       throw error;
@@ -51,13 +44,10 @@ export class UsersService {
   }
 
   async findById(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne(
-      { where: 
-        { 
-          id 
-        } 
-      }
-    );
+    const user = await this.usersRepository.findOne({ where: { 
+        id 
+      } 
+    });
     if (!user) {
       throw new NotFoundException();
     }
@@ -66,7 +56,9 @@ export class UsersService {
 
   async findByUsername(username: string): Promise<User> {
     const user = await this.usersRepository.findOne({
-      where: { username: ILike(`%${username}%`) },
+      where: { 
+        username: ILike(`%${username}%`) 
+      },
     });
     if (!user) {
       throw new NotFoundException();
@@ -77,15 +69,14 @@ export class UsersService {
   async findMany(query: string): Promise<User[]> {
     return await this.usersRepository.find({
       where: [
-          { 
-            email: ILike(`%${query}%`) 
-          }, 
-          { 
-            username: ILike(`%${query}%`) 
-          }
-        ],
-      }
-    );
+        { 
+          email: ILike(`%${query}%`) 
+        }, 
+        { 
+          username: ILike(`%${query}%`) 
+        }
+      ],
+    });
   }
 
   async findOne(options: FindOneOptions<User>): Promise<User> {
@@ -99,12 +90,14 @@ export class UsersService {
   }
 
   async findWishes(query: { id?: number; username?: string }): Promise<Wish[]> {
-    const user = await this.findOne(
-      {
-        relations: ['wishes', 'wishes.owner', 'wishes.offers'],
-        where: query,
-      }
-    );
+    const user = await this.findOne({
+      relations: [
+        'wishes', 
+        'wishes.owner', 
+        'wishes.offers'
+      ],
+      where: query,
+    });
 
     return user.wishes || [];
   }
@@ -113,22 +106,18 @@ export class UsersService {
     const user = await this.findById(id);
 
     if (updateUserDto.email && updateUserDto.email !== user.email) {
-      const existingByEmail = await this.usersRepository.findOne(
-        {
-          where: { email: updateUserDto.email },
-        }
-      );
+      const existingByEmail = await this.usersRepository.findOne({
+        where: { email: updateUserDto.email },
+      });
       if (existingByEmail && existingByEmail.id !== id) {
         throw new ConflictException('Ошибка! Пользователь с таким email уже существует');
       }
     }
 
     if (updateUserDto.username && updateUserDto.username !== user.username) {
-      const existingByUsername = await this.usersRepository.findOne(
-        {
-          where: { username: updateUserDto.username },
-        }
-      );
+      const existingByUsername = await this.usersRepository.findOne({
+        where: { username: updateUserDto.username },
+      });
       if (existingByUsername && existingByUsername.id !== id) {
         throw new ConflictException('Ошибка! Пользователь с таким username уже существует');
       }

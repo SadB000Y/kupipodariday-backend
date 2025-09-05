@@ -1,5 +1,16 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { IsArray, IsNotEmpty, IsString, IsUrl } from 'class-validator';
 
-import { CreateWishlistDto } from './create-wishlist.dto';
+export class UpdateWishlistDto {
+  @IsNotEmpty()
+  @IsString()
+  @IsUrl()
+  image: string;
 
-export class UpdateWishlistDto extends PartialType(CreateWishlistDto) {}
+  @IsArray()
+  @IsString({ each: true })
+  itemsId: string[];
+
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+}

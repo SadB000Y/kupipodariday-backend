@@ -11,11 +11,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 
-
 import { JwtGuard } from '../auth/guards/jwt.guard';
 
-import { RequestWithUser } from '../shared/types/request-with-user';
 import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
+import { RequestWithUser } from '../shared/types/request-with-user';
 
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';

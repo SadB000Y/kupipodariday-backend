@@ -1,10 +1,6 @@
-import { FindOneOptions } from 'typeorm';
-import { ForbiddenException } from '@nestjs/common';
-import { In } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { FindOneOptions, In, Repository } from 'typeorm';
 
 import { User } from '../users/entities/user.entity';
 
@@ -37,7 +33,10 @@ export class WishlistsService {
     const savedWishlist = await this.wishlistsRepository.save(wishlist);
 
     return this.findOne({
-      relations: ['owner', 'items'],
+      relations: [
+        'owner', 
+        'items'
+      ],
       where: { id: savedWishlist.id },
     });
   }
@@ -45,19 +44,30 @@ export class WishlistsService {
   async findAll(): Promise<Wishlist[]> {
     return await this.wishlistsRepository.find({
       order: { id: 'ASC' },
-      relations: ['owner', 'items'],
+      relations: [
+        'owner', 
+        'items'
+      ],
     });
   }
 
   async findById(id: number): Promise<Wishlist> {
-    return await this.findOne({ relations: ['owner', 'items'], where: { id } });
+    return await this.findOne({ 
+        relations: [
+        'owner', 
+        'items'
+      ], 
+      where: { 
+        id 
+      } 
+    });
   }
 
   async findOne(options: FindOneOptions<Wishlist>): Promise<Wishlist> {
     const wishlist = await this.wishlistsRepository.findOne(options);
 
     if (!wishlist) {
-      throw new NotFoundException('Вишлист не найден');
+      throw new NotFoundException('Ошибка! Вишлист не найден');
     }
 
     return wishlist;
@@ -65,12 +75,17 @@ export class WishlistsService {
 
   async removeOne(id: number, user: User): Promise<Wishlist> {
     const wishlist = await this.findOne({
-      relations: ['owner', 'items'],
-      where: { id },
+      relations: [
+        'owner', 
+        'items'
+      ],
+      where: { 
+        id 
+      },
     });
 
     if (wishlist.owner.id !== user.id) {
-      throw new ForbiddenException('Вы не можете удалить чужой вишлист');
+      throw new ForbiddenException('Ошибка! Вы не можете удалить чужой вишлист');
     }
 
     await this.wishlistsRepository.remove(wishlist);
@@ -79,12 +94,11 @@ export class WishlistsService {
   }
 
   async updateOne(id: number, updateWishlistDto: UpdateWishlistDto, user: User): Promise<Wishlist> {
-    const wishlist = await this.findOne(
-      { where: { 
-          id 
-        } 
-      }
-    );
+    const wishlist = await this.findOne({ where: 
+      { 
+        id
+      } 
+    });
 
     if (wishlist.owner.id !== user.id) {
       throw new ForbiddenException('Ошибка! Вы не можете редактировать чужой вишлист');

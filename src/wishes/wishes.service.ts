@@ -4,10 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { FindOneOptions } from 'typeorm';
-import { FindOptionsWhere } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 
 import { User } from '../users/entities/user.entity';
 
@@ -26,7 +24,6 @@ export class WishesService {
   async copyWish(id: number, user: User): Promise<Wish> {
     const wish = await this.findOne({ where: { id } });
 
-    // Проверка копировал ли пользователь этот подарок
     const existingCopy = await this.wishesRepository.findOne({
       where: {
         link: wish.link,
@@ -36,7 +33,7 @@ export class WishesService {
     });
 
     if (existingCopy) {
-      throw new BadRequestException('Вы уже копировали себе этот подарок');
+      throw new BadRequestException('Ошибка! Вы уже копировали себе этот подарок');
     }
 
     const copiedWish = this.wishesRepository.create({
@@ -124,7 +121,7 @@ export class WishesService {
     });
 
     if (wish.owner.id !== user.id) {
-      throw new ForbiddenException('Вы не можете удалить чужой подарок');
+      throw new ForbiddenException('Ошибка! Вы не можете удалить чужой подарок');
     }
 
     return this.removeOne(wish);
@@ -140,15 +137,15 @@ export class WishesService {
     const wish = await this.findOne({ where: { id } });
 
     if (wish.owner.id !== user.id) {
-      throw new ForbiddenException('Вы не можете редактировать чужой подарок');
+      throw new ForbiddenException('Ошибка! Вы не можете редактировать чужой подарок');
     }
 
     if (updateWishDto.raised) {
-      throw new ForbiddenException('Сумма собранных средств недоступна для изменения');
+      throw new ForbiddenException('Ошибка! Сумма собранных средств недоступна для изменения');
     }
 
     if (wish.offers.length > 0 && updateWishDto.price) {
-      throw new BadRequestException('Нельзя обновить цену при наличии заявок');
+      throw new BadRequestException('Ошибка! Нельзя обновить цену при наличии заявок');
     }
 
     return await this.updateOne(id, updateWishDto);

@@ -1,9 +1,7 @@
-import { compare } from 'bcrypt';
-import { hash } from 'bcrypt';
-import { Injectable } from '@nestjs/common';
-import { InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { compare, hash } from 'bcrypt';
 
-import { MAIN_CONST } from './constants';
+import { SALT } from './constants';
 
 @Injectable()
 export class HashService {
@@ -17,7 +15,7 @@ export class HashService {
 
   async hash(data: string) {
     try {
-      return hash(data, MAIN_CONST);
+      return hash(data, SALT);
     } catch {
       throw new InternalServerErrorException('Ошибка при хешировании пароля');
     }

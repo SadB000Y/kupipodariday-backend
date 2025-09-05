@@ -9,11 +9,9 @@ import { WishlistsController } from './wishlists.controller';
 
 import { WishlistsService } from './wishlists.service';
 
-@Module(
-  {
-    controllers: [WishlistsController],
-    imports: [TypeOrmModule.forFeature([Wishlist]), WishesModule],
-    providers: [WishlistsService],
-  }
-)
+@Module({
+  controllers: [WishlistsController],
+  imports: [TypeOrmModule.forFeature([Wishlist]), WishesModule],
+  providers: [WishlistsService],
+})
 export class WishlistsModule {}

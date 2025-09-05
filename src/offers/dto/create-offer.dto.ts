@@ -1,7 +1,4 @@
-import { IsBoolean } from 'class-validator';
-import { IsNotEmpty } from 'class-validator';
-import { IsNumber } from 'class-validator';
-import { IsPositive } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 
 export class CreateOfferDto {
   @IsNotEmpty()

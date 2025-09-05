@@ -1,10 +1,5 @@
-import { Column } from 'typeorm';
-import { Entity } from 'typeorm';
-import { IsNumber } from 'class-validator';
-import { IsUrl } from 'class-validator';
-import { Length } from 'class-validator';
-import { ManyToOne } from 'typeorm';
-import { OneToMany } from 'typeorm';
+import { IsNumber, IsUrl, Length } from 'class-validator';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { Offer } from '../../offers/entities/offer.entity';
 

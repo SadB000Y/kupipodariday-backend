@@ -1,16 +1,11 @@
-import { Body } from '@nestjs/common';
-import { Controller } from '@nestjs/common';
-import { Post } from '@nestjs/common';
-import { Req } from '@nestjs/common';
-import { UseGuards } from '@nestjs/common';
-import { UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 
-import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { LocalGuard } from './guards/local.guard';
-import { RequestWithUser } from '../shared/types/request-with-user';
 import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
+import { RequestWithUser } from '../shared/types/request-with-user';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
+import { AuthService } from './auth.service';
+import { LocalGuard } from './guards/local.guard';
 
 @Controller()
 export class AuthController {
@@ -19,13 +14,13 @@ export class AuthController {
     private authService: AuthService,
   ) {}
 
-  @Post('signin')
+  @Post('logging')
   @UseGuards(LocalGuard)
   signin(@Req() req: RequestWithUser) {
     return this.authService.auth(req.user);
   }
 
-  @Post('signup')
+  @Post('register')
   @UseInterceptors(SensitiveDataInterceptor)
   signup(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);

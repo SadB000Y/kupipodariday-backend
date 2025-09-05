@@ -1,12 +1,5 @@
-import { Column } from 'typeorm';
-import { Entity } from 'typeorm';
-import { IsOptional } from 'class-validator';
-import { IsUrl } from 'class-validator';
-import { JoinTable } from 'typeorm';
-import { Length } from 'class-validator';
-import { ManyToMany } from 'typeorm';
-import { ManyToOne } from 'typeorm';
-
+import { IsOptional, IsUrl, Length } from 'class-validator';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../../shared/base.entity';
 

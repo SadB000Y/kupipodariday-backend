@@ -1,9 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
-import { IsNumber } from 'class-validator';
-import { IsPositive } from 'class-validator';
-import { IsString } from 'class-validator';
-import { IsUrl } from 'class-validator';
-import { MaxLength } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsPositive, IsString, IsUrl, MaxLength } from 'class-validator';
 
 export class CreateWishDto {
   @IsNotEmpty()

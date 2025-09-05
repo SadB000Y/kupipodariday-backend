@@ -1,5 +1,16 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { IsBoolean, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 
-import { CreateOfferDto } from './create-offer.dto';
+export class UpdateOfferDto {
+  @IsNotEmpty()
+  @IsNumber()
+  @IsPositive()
+  amount: number;
 
-export class UpdateOfferDto extends PartialType(CreateOfferDto) {}
+  @IsBoolean()
+  @IsNotEmpty()
+  hidden: boolean;
+
+  @IsNotEmpty()
+  @IsNumber()
+  itemId: number;
+}

@@ -1,10 +1,8 @@
-import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
-import { FALLBACK_VALUES } from './shared/constants';
-import { httpCorsMethods } from './shared/constants';
-import { httpLocalhost } from './shared/constants';
+import { FALLBACK_VALUES, httpCorsMethods, httpLocalhost } from './shared/constants';
 
 const { PORT = FALLBACK_VALUES.SERVER_PORT } = process.env;
 

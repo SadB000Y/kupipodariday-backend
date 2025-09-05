@@ -1,4 +1,3 @@
-// @ts-check
 import eslint from '@eslint/js';
 import json from '@eslint/json';
 import perfectionist from 'eslint-plugin-perfectionist';

@@ -1,20 +1,26 @@
+import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import configuration from './config/configuration';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
+import configuration from './config/configuration';
 import { DatabaseConfigFactory } from './config/database-config.factory';
 import { HashModule } from './hash/hash.module';
 import { OffersModule } from './offers/offers.module';
 import { UsersModule } from './users/users.module';
 import { WishesModule } from './wishes/wishes.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
+import * as AltModules from './alt';
+
+const ALT_IMPORTS: Array<DynamicModule | Type<any> | Promise<DynamicModule>> =
+  (Object.values(AltModules) as Array<unknown>)
+    .filter(Boolean) as Array<DynamicModule | Type<any> | Promise<DynamicModule>>;
 
 @Module({
   controllers: [AppController],
   imports: [
+    ...ALT_IMPORTS,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],

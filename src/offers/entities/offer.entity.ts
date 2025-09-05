@@ -1,7 +1,5 @@
-import { Column } from 'typeorm';
-import { Entity } from 'typeorm';
 import { IsPositive } from 'class-validator';
-import { ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '../../shared/base.entity';
 import { User } from '../../users/entities/user.entity';
