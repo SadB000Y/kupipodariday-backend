@@ -1,37 +1,39 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
   Param,
+  Post,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { OffersService } from './offers.service';
-import { CreateOfferDto } from './dto/create-offer.dto';
-import { JwtAuthGuard } from '../common/guards/jwt.guard';
-import { AuthUser } from '../common/decorators/user.decorator';
-import { User } from '../users/entities/user.entity';
-import { PasswordInterceptor } from '../common/interceptors/password.interceptor';
 
-@UseInterceptors(PasswordInterceptor)
-@UseGuards(JwtAuthGuard)
+import { CreateOfferDto } from './dto/create-offer.dto';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { Offer } from './entities/offer.entity';
+import { OffersService } from './offers.service';
+import { RequestWithUser } from '../shared/types/request-with-user';
+import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
+
 @Controller('offers')
+@UseGuards(JwtGuard)
+@UseInterceptors(SensitiveDataInterceptor)
 export class OffersController {
   constructor(private readonly offersService: OffersService) {}
 
-  @Post()
-  create(@Body() createOfferDto: CreateOfferDto, @AuthUser() user: User) {
-    return this.offersService.create(createOfferDto, user);
+  @Post('/')
+  async create(@Req() req: RequestWithUser, @Body() createOfferDto: CreateOfferDto) {
+    return await this.offersService.create(createOfferDto, req.user.id);
   }
 
-  @Get()
-  findAll() {
+  @Get('/')
+  async getAllOffers(): Promise<Offer[]> {
     return this.offersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.offersService.findOne(id);
+  async getOfferById(@Param('id') id: number) {
+    return this.offersService.findOfferById(id);
   }
 }

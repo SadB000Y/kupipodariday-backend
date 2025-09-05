@@ -1,29 +1,29 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { HashModule } from '../hash/hash.module';
-import { UsersModule } from '../users/users.module';
+import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
+
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { LocalStrategy } from './strategies/local.strategy';
+import { HashModule } from '../hash/hash.module';
+import { JwtConfigFactory } from '../config/jwt-config.factory';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { JwtConfigFactory } from '../config/jwt.config';
-import config from '../config/config';
+import { LocalStrategy } from './strategies/local.strategy';
+import { UsersModule } from '../users/users.module';
 
-@Module({
-  imports: [
-    PassportModule,
-    HashModule,
-    UsersModule,
-    JwtModule.registerAsync({ useClass: JwtConfigFactory }),
-    ConfigModule.forRoot({
-      load: [config],
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtConfigFactory, JwtStrategy, LocalStrategy],
-})
+@Module(
+  {
+    controllers: [AuthController],
+    imports: [
+      UsersModule,
+      HashModule,
+      PassportModule,
+      JwtModule.registerAsync(
+        {
+          useClass: JwtConfigFactory,
+        }
+      ),
+    ],
+    providers: [AuthService, LocalStrategy, JwtStrategy, JwtConfigFactory],
+  }
+)
 export class AuthModule {}

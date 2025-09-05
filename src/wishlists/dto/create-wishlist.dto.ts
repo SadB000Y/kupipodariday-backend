@@ -1,26 +1,19 @@
-import {
-  IsString,
-  IsUrl,
-  IsArray,
-  IsInt,
-  IsOptional,
-  Length,
-} from 'class-validator';
+import { IsArray } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
+import { IsString } from 'class-validator';
+import { IsUrl } from 'class-validator';
 
 export class CreateWishlistDto {
+  @IsNotEmpty()
   @IsString()
-  @Length(1, 250)
-  name: string;
-
   @IsUrl()
   image: string;
 
   @IsArray()
-  @IsInt({ each: true })
-  itemsId: number[];
+  @IsString({ each: true })
+  itemsId: string[];
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  @Length(1, 1024)
-  description: string;
+  name: string;
 }

@@ -1,31 +1,34 @@
+import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import configuration from './config/configuration';
 import { AppController } from './app.controller';
-import config from './config/config';
-import { DatabaseConfigFactory } from './config/database.config';
-import { UsersModule } from './users/users.module';
-import { HashModule } from './hash/hash.module';
 import { AuthModule } from './auth/auth.module';
-import { WishesModule } from './wishes/wishes.module';
+import { DatabaseConfigFactory } from './config/database-config.factory';
+import { HashModule } from './hash/hash.module';
 import { OffersModule } from './offers/offers.module';
+import { UsersModule } from './users/users.module';
+import { WishesModule } from './wishes/wishes.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
 
 @Module({
+  controllers: [AppController],
   imports: [
-    UsersModule,
-    WishesModule,
-    OffersModule,
-    WishlistsModule,
-    HashModule,
-    AuthModule,
-    ConfigModule.forRoot({ load: [config], isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
     TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
       useClass: DatabaseConfigFactory,
     }),
+    UsersModule,
+    WishesModule,
+    WishlistsModule,
+    OffersModule,
+    AuthModule,
+    HashModule,
   ],
-  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}

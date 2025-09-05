@@ -1,21 +1,32 @@
-import { IsNumber, IsString, IsUrl, Length, Min } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
+import { IsNumber } from 'class-validator';
+import { IsPositive } from 'class-validator';
+import { IsString } from 'class-validator';
+import { IsUrl } from 'class-validator';
+import { MaxLength } from 'class-validator';
 
 export class CreateWishDto {
+  @IsNotEmpty()
   @IsString()
-  @Length(1, 250)
-  name: string;
+  description: string;
 
-  @IsUrl()
-  link: string;
-
+  @IsNotEmpty()
+  @IsString()
   @IsUrl()
   image: string;
 
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  price: number;
-
+  @IsNotEmpty()
   @IsString()
-  @Length(1, 1024)
-  description: string;
+  @IsUrl()
+  link: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(250)
+  name: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @IsPositive()
+  price: number;
 }

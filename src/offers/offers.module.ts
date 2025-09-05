@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
-import { OffersService } from './offers.service';
-import { OffersController } from './offers.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Offer } from './entities/offer.entity';
-import { WishesService } from '../wishes/wishes.service';
-import { Wish } from '../wishes/entities/wish.entity';
 
-@Module({
-  imports: [TypeOrmModule.forFeature([Offer, Wish])],
-  controllers: [OffersController],
-  providers: [OffersService, WishesService],
-})
+import { Offer } from './entities/offer.entity';
+import { OffersController } from './offers.controller';
+import { OffersService } from './offers.service';
+import { UsersModule } from '../users/users.module';
+import { WishesModule } from '../wishes/wishes.module';
+
+@Module(
+  {
+    controllers: [OffersController],
+    imports: [TypeOrmModule.forFeature([Offer]), WishesModule, UsersModule],
+    providers: [OffersService],
+  }
+)
 export class OffersModule {}

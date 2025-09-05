@@ -1,26 +1,38 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UnauthorizedException } from '@nestjs/common';
+
 import { HashService } from '../hash/hash.service';
+import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
-    private readonly hashService: HashService,
+    private usersService: UsersService,
+    private hashService: HashService,
+    private jwtService: JwtService,
   ) {}
-  async validatePassword(username: string, password: string) {
-    const user = await this.usersService.findOne(username);
 
-    if (user && (await this.hashService.verifyHash(password, user.password))) {
-      return user;
-    } else {
-      throw new UnauthorizedException('Username or password is invalid');
-    }
+  auth(user: User) {
+    const payload = { sub: user.id };
+
+    return { access_token: this.jwtService.sign(payload) };
   }
-  async signin(userId: number) {
-    const token = await this.jwtService.signAsync({ sub: userId });
-    return { access_token: token };
+
+  async validatePassword(username: string, password: string): Promise<null | User> {
+    const user = await this.usersService.findByUsername(username);
+
+    if (!user) {
+      return null;
+    }
+
+    const hasMatch = await this.hashService.compare(password, user.password);
+
+    if (!hasMatch) {
+      throw new UnauthorizedException('Ошибка! Неверные учетные данные');
+    }
+
+    return user;
   }
 }

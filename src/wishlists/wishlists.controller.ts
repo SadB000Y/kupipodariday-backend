@@ -1,58 +1,66 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
   UseGuards,
-  UseFilters,
   UseInterceptors,
 } from '@nestjs/common';
-import { WishlistsService } from './wishlists.service';
+
+import { JwtGuard } from '../auth/guards/jwt.guard';
+
+import { RequestWithUser } from '../shared/types/request-with-user';
+import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
+
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
-import { JwtAuthGuard } from '../common/guards/jwt.guard';
-import { AuthUser, AuthUserId } from '../common/decorators/user.decorator';
-import { User } from '../users/entities/user.entity';
-import { PasswordInterceptor } from '../common/interceptors/password.interceptor';
-import { ValidationExceptionFilter } from 'src/common/filters/validation-exception.filter';
 
-@UseInterceptors(PasswordInterceptor)
-@UseGuards(JwtAuthGuard)
+import { Wishlist } from './entities/wishlist.entity';
+
+import { WishlistsService } from './wishlists.service';
+
 @Controller('wishlistlists')
+@UseGuards(JwtGuard)
+@UseInterceptors(SensitiveDataInterceptor)
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
-  @Post()
-  @UseFilters(ValidationExceptionFilter)
-  create(@Body() createWishlistDto: CreateWishlistDto, @AuthUser() user: User) {
-    return this.wishlistsService.create(createWishlistDto, user);
-  }
-
-  @Get()
-  findAll() {
-    return this.wishlistsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.wishlistsService.findById(id);
-  }
-
-  @Patch(':id')
-  @UseFilters(ValidationExceptionFilter)
-  update(
-    @Param('id') wishId: number,
-    @Body() updateWishlistDto: UpdateWishlistDto,
-    @AuthUserId() userId: number,
-  ) {
-    return this.wishlistsService.update(wishId, updateWishlistDto, userId);
+  @Post('/')
+  async create(
+    @Req() req: RequestWithUser,
+    @Body() createWishlistDto: CreateWishlistDto,
+  ): Promise<Wishlist> {
+    return this.wishlistsService.create(createWishlistDto, req.user);
   }
 
   @Delete(':id')
-  remove(@Param('id') wishId: number, @AuthUserId() userId: number) {
-    return this.wishlistsService.remove(wishId, userId);
+  async deleteWishlistById(
+    @Req() req: RequestWithUser,
+    @Param('id') id: number,
+  ): Promise<Wishlist> {
+    return await this.wishlistsService.removeOne(id, req.user);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: number): Promise<Wishlist> {
+    return await this.wishlistsService.findById(id);
+  }
+
+  @Get('/')
+  async getAllWishlists(): Promise<Wishlist[]> {
+    return await this.wishlistsService.findAll();
+  }
+
+  @Patch(':id')
+  async updateWishlistById(
+    @Req() req: RequestWithUser,
+    @Param('id') id: number,
+    @Body() updateWishlistDto: UpdateWishlistDto,
+  ): Promise<Wishlist> {
+    return await this.wishlistsService.updateOne(id, updateWishlistDto, req.user);
   }
 }

@@ -1,22 +1,24 @@
-import { IsDecimal, Min } from 'class-validator';
-import { User } from 'src/users/entities/user.entity';
-import { Wish } from 'src/wishes/entities/wish.entity';
-import { Entity, Column, ManyToOne } from 'typeorm';
-import { BaseEntity } from 'src/common/base-entity';
+import { Column } from 'typeorm';
+import { Entity } from 'typeorm';
+import { IsPositive } from 'class-validator';
+import { ManyToOne } from 'typeorm';
+
+import { BaseEntity } from '../../shared/base.entity';
+import { User } from '../../users/entities/user.entity';
+import { Wish } from '../../wishes/entities/wish.entity';
 
 @Entity()
 export class Offer extends BaseEntity {
+  @Column({ precision: 10, scale: 2, type: 'decimal' })
+  @IsPositive()
+  amount: number;
+
   @Column({ default: false })
   hidden: boolean;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
-  @IsDecimal({ decimal_digits: '2' })
-  @Min(0)
-  amount: number;
+  @ManyToOne(() => Wish, (wish) => wish.offers)
+  item: Wish;
 
   @ManyToOne(() => User, (user) => user.offers)
   user: User;
-
-  @ManyToOne(() => Wish, (wish) => wish.offers)
-  item: Wish;
 }

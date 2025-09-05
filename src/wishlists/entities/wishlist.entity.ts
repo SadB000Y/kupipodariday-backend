@@ -1,17 +1,22 @@
-import { IsOptional, IsUrl, Length } from 'class-validator';
-import { User } from 'src/users/entities/user.entity';
-import { Wish } from 'src/wishes/entities/wish.entity';
-import { Entity, Column, ManyToOne, JoinTable, ManyToMany } from 'typeorm';
-import { BaseEntity } from 'src/common/base-entity';
+import { Column } from 'typeorm';
+import { Entity } from 'typeorm';
+import { IsOptional } from 'class-validator';
+import { IsUrl } from 'class-validator';
+import { JoinTable } from 'typeorm';
+import { Length } from 'class-validator';
+import { ManyToMany } from 'typeorm';
+import { ManyToOne } from 'typeorm';
+
+
+import { BaseEntity } from '../../shared/base.entity';
+
+import { User } from '../../users/entities/user.entity';
+
+import { Wish } from '../../wishes/entities/wish.entity';
 
 @Entity()
 export class Wishlist extends BaseEntity {
-  @Column()
-  @Length(1, 250)
-  name: string;
-
-  @Column({ nullable: true })
-  @Length(1, 1024)
+  @Column({ length: 1500, nullable: true })
   @IsOptional()
   description: string;
 
@@ -19,9 +24,13 @@ export class Wishlist extends BaseEntity {
   @IsUrl()
   image: string;
 
-  @ManyToMany(() => Wish)
   @JoinTable()
+  @ManyToMany(() => Wish)
   items: Wish[];
+
+  @Column()
+  @Length(1, 250)
+  name: string;
 
   @ManyToOne(() => User, (user) => user.wishlists)
   owner: User;
