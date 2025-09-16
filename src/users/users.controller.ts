@@ -8,60 +8,72 @@ import {
   Req,
   UseGuards,
   UseInterceptors,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { JwtGuard } from '../auth/guards/jwt.guard';
+import { JwtStrategyGuard } from "../auth/guards/jwt.guard";
+import { ExcludePasswordInterceptor } from "../interceptors/exclude-password-interceptor";
+import { RequestWithUserField } from "../shared/request-with-user";
+import { Wish } from "../wishes/entities/wish.entity";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./entities/user.entity";
+import { UsersService } from "./users.service";
 
-import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
-import { RequestWithUser } from '../shared/types/request-with-user';
-
-import { Wish } from '../wishes/entities/wish.entity';
-
-import { FindUsersDto } from './dto/find-users.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-
-import { User } from './entities/user.entity';
-
-import { UsersService } from './users.service';
-
-@Controller('users')
-@UseGuards(JwtGuard)
+@Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private usersService: UsersService) {}
 
-  @Patch('me')
-  @UseInterceptors(SensitiveDataInterceptor)
-  async editCurrentUser(@Req() req: RequestWithUser, @Body() updateUserDto: UpdateUserDto) {
-    return await this.usersService.updateOne(req.user.id, updateUserDto);
-  }
-
-  @Post('find')
-  @UseInterceptors(SensitiveDataInterceptor)
-  async findAll(@Body() { query }: FindUsersDto): Promise<User[]> {
+  //найти юзеров согласно query
+  @Post("find")
+  @UseGuards(JwtStrategyGuard)
+  @UseInterceptors(ExcludePasswordInterceptor)
+  async getAll(@Body("query") query: string): Promise<User[]> {
     return await this.usersService.findMany(query);
   }
 
-  @Get('me')
-  @UseInterceptors(SensitiveDataInterceptor)
-  async getCurrentUser(@Req() req: RequestWithUser) {
+  //получить мой профиль
+  @Get("me")
+  @UseGuards(JwtStrategyGuard)
+  @UseInterceptors(ExcludePasswordInterceptor)
+  async getMyProfile(@Req() req: RequestWithUserField): Promise<User> {
     return await this.usersService.findById(req.user.id);
   }
 
-  @Get(':username')
-  @UseInterceptors(SensitiveDataInterceptor)
-  async getByUsername(@Param('username') username: string): Promise<User> {
+  //получить свои желания
+  @Get("me/wishes")
+  @UseGuards(JwtStrategyGuard)
+  @UseInterceptors(ExcludePasswordInterceptor)
+  async getMyWishes(@Req() req: RequestWithUserField): Promise<Wish[]> {
+    return await this.usersService.findWishes({
+      id: req.user.id,
+    });
+  }
+
+  //получить профиль юзера по никнейму
+  @Get(":username")
+  @UseGuards(JwtStrategyGuard)
+  @UseInterceptors(ExcludePasswordInterceptor)
+  async getUserProfile(@Param("username") username: string): Promise<User> {
     return await this.usersService.findByUsername(username);
   }
 
-  @Get('me/wishes')
-  @UseInterceptors(SensitiveDataInterceptor)
-  async getProfileWishes(@Req() req: RequestWithUser) {
-    return await this.usersService.findWishes({ id: req.user.id });
+  //получить желания юзера
+  @Get(":username/wishes")
+  @UseGuards(JwtStrategyGuard)
+  @UseInterceptors(ExcludePasswordInterceptor)
+  async getWishesByParam(@Param("username") username: string): Promise<Wish[]> {
+    return await this.usersService.findWishes({
+      username: username,
+    });
   }
 
-  @Get(':username/wishes')
-  @UseInterceptors(SensitiveDataInterceptor)
-  async getWishesByUsername(@Param('username') username: string): Promise<Wish[]> {
-    return await this.usersService.findWishes({ username });
+  //обновить свой профиль
+  @Patch("me")
+  @UseGuards(JwtStrategyGuard)
+  @UseInterceptors(ExcludePasswordInterceptor)
+  async updateUser(
+    @Req() req: RequestWithUserField,
+    @Body() updateUserDto: UpdateUserDto
+  ): Promise<User> {
+    return await this.usersService.updateOne(req.user.id, updateUserDto);
   }
 }

@@ -1,23 +1,29 @@
-import { IsEmail, IsUrl, Length } from 'class-validator';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { IsEmail, IsString, IsUrl, Length } from "class-validator";
+import { Column, Entity, OneToMany } from "typeorm";
 
-import { Offer } from '../../offers/entities/offer.entity';
-import { BaseEntity } from '../../shared/base.entity';
-import { Wish } from '../../wishes/entities/wish.entity';
-import { Wishlist } from '../../wishlists/entities/wishlist.entity';
-import { DEFAULT_USER_VALUES } from '../constants/default-user-values';
+import { Offer } from "../../offers/entities/offer.entity";
+import { BaseEntity } from "../../shared/base.entity";
+import { Wish } from "../../wishes/entities/wish.entity";
+import { Wishlist } from "../../wishlists/entities/wishlist.entity";
 
 @Entity()
 export class User extends BaseEntity {
-  @Column({ default: DEFAULT_USER_VALUES.ABOUT })
+  @Column({
+    default: "Пока ничего не рассказал о себе",
+  })
+  @IsString()
   @Length(2, 200)
   about: string;
 
-  @Column({ default: DEFAULT_USER_VALUES.AVATAR })
+  @Column({
+    default: "https://i.pravatar.cc/300",
+  })
   @IsUrl()
   avatar: string;
 
-  @Column({ unique: true })
+  @Column({
+    unique: true,
+  })
   @IsEmail()
   email: string;
 
@@ -25,9 +31,13 @@ export class User extends BaseEntity {
   offers: Offer[];
 
   @Column()
+  @IsString()
   password: string;
 
-  @Column({ unique: true })
+  @Column({
+    unique: true,
+  })
+  @IsString()
   @Length(2, 30)
   username: string;
 

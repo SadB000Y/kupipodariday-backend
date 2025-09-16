@@ -9,66 +9,78 @@ import {
   Req,
   UseGuards,
   UseInterceptors,
-} from '@nestjs/common';
+} from "@nestjs/common";
 
-import { JwtGuard } from '../auth/guards/jwt.guard';
+import { JwtStrategyGuard } from "../auth/guards/jwt.guard";
+import { ExcludePasswordInterceptor } from "../interceptors/exclude-password-interceptor";
+import { RequestWithUserField } from "../shared/request-with-user";
+import { CreateWishDto } from "./dto/create-wish.dto";
+import { UpdateWishDto } from "./dto/update-wish.dto";
+import { Wish } from "./entities/wish.entity";
+import { WishesService } from "./wishes.service";
 
-import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
-import { RequestWithUser } from '../shared/types/request-with-user';
-
-import { CreateWishDto } from './dto/create-wish.dto';
-import { UpdateWishDto } from './dto/update-wish.dto';
-
-import { Wish } from './entities/wish.entity';
-
-import { WishesService } from './wishes.service';
-
-@Controller('wishes')
-@UseInterceptors(SensitiveDataInterceptor)
+@Controller("wishes")
+@UseInterceptors(ExcludePasswordInterceptor)
 export class WishesController {
-  constructor(private readonly wishesService: WishesService) {}
+  constructor(private wishesService: WishesService) {}
 
-  @Post(':id/copy')
-  @UseGuards(JwtGuard)
-  async copyWishById(@Req() req: RequestWithUser, @Param('id') id: number): Promise<Wish> {
+  //копировать желание
+  @Post(":id/copy")
+  @UseGuards(JwtStrategyGuard)
+  async copyWishById(
+    @Req() req: RequestWithUserField,
+    @Param("id") id: number
+  ): Promise<Wish> {
     return await this.wishesService.copyWish(id, req.user);
   }
 
-  @Post('/')
-  @UseGuards(JwtGuard)
-  async create(@Req() req: RequestWithUser, @Body() createWishDto: CreateWishDto): Promise<Wish> {
-    return await this.wishesService.create(createWishDto, req.user);
+  @Post("")
+  @UseGuards(JwtStrategyGuard)
+  async createWish(
+    @Req() req: RequestWithUserField,
+    @Body() createWishDto: CreateWishDto
+  ): Promise<Wish> {
+    return await this.wishesService.createWish(createWishDto, req.user);
   }
 
-  @Delete(':id')
-  @UseGuards(JwtGuard)
-  async deleteWishById(@Req() req: RequestWithUser, @Param('id') id: number): Promise<Wish> {
-    return await this.wishesService.removeWishWithChecks(id, req.user);
+  //удалить желание
+  @Delete(":wishId")
+  @UseGuards(JwtStrategyGuard)
+  async deleteWishById(
+    @Param("wishId") wishId: number,
+    @Req() req: RequestWithUserField
+  ): Promise<Wish> {
+    return await this.wishesService.removeOne(
+      await this.wishesService.findOne({ where: { id: wishId } }),
+      req.user
+    );
   }
 
-  @Get('/last')
+  //последние 40 опубликованных желаний
+  @Get("last")
   async getLastWishes(): Promise<Wish[]> {
     return await this.wishesService.getLastWishes();
   }
 
-  @Get('/top')
+  //топ 20 желаний по популярности
+  @Get("top")
   async getTopWishes(): Promise<Wish[]> {
     return await this.wishesService.getTopWishes();
   }
 
-  @Get(':id')
-  @UseGuards(JwtGuard)
-  async getWishById(@Param('id') id: number): Promise<Wish> {
+  @Get(":id")
+  @UseGuards(JwtStrategyGuard)
+  async getWishById(@Param("id") id: number): Promise<Wish> {
     return await this.wishesService.findWishById(id);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtGuard)
+  @Patch(":id")
+  @UseGuards(JwtStrategyGuard)
   async updateWishById(
-    @Req() req: RequestWithUser,
-    @Param('id') id: number,
-    @Body() updateWishDto: UpdateWishDto,
+    @Req() req: RequestWithUserField,
+    @Param("id") id: number,
+    @Body() updateWishDto: UpdateWishDto
   ): Promise<Wish> {
-    return await this.wishesService.updateWishWithChecks(id, updateWishDto, req.user);
+    return await this.wishesService.updateOne(id, updateWishDto, req.user);
   }
 }

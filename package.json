@@ -2,7 +2,7 @@
   "name": "kupipodariday-backend",
   "version": "1.0.0",
   "description": "Бэк проекта КупиПодариДай",
-  "author": "Ryzhikov Viktor",
+  "author": "Viktor Ryzhikov",
   "private": true,
   "license": "MIT",
   "scripts": {

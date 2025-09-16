@@ -1,28 +1,38 @@
-import { Body, Controller, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  UseGuards,
+  UseInterceptors,
+} from "@nestjs/common";
 
-import { SensitiveDataInterceptor } from '../shared/interceptors/sensitive-data-interceptor';
-import { RequestWithUser } from '../shared/types/request-with-user';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { UsersService } from '../users/users.service';
-import { AuthService } from './auth.service';
-import { LocalGuard } from './guards/local.guard';
+import { ExcludePasswordInterceptor } from "../interceptors/exclude-password-interceptor";
+import { RequestWithUserField } from "../shared/request-with-user";
+import { CreateUserDto } from "../users/dto/create-user.dto";
+import { User } from "../users/entities/user.entity";
+import { UsersService } from "../users/users.service";
+import { AuthService } from "./auth.service";
+import { LocalStrategyGuard } from "./guards/local.guard";
 
 @Controller()
 export class AuthController {
   constructor(
     private usersService: UsersService,
-    private authService: AuthService,
+    private authService: AuthService
   ) {}
 
-  @Post('logging')
-  @UseGuards(LocalGuard)
-  signin(@Req() req: RequestWithUser) {
-    return this.authService.auth(req.user);
+  //вход
+  @Post("signin")
+  @UseGuards(LocalStrategyGuard)
+  async signin(@Req() req: RequestWithUserField) {
+    return await this.authService.generateAccessToken(req.user);
   }
 
-  @Post('register')
-  @UseInterceptors(SensitiveDataInterceptor)
-  signup(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  //регистрация
+  @Post("signup")
+  @UseInterceptors(ExcludePasswordInterceptor)
+  async signup(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return await this.usersService.signupUser(createUserDto);
   }
 }

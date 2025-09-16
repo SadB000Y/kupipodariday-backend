@@ -1,35 +1,43 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import bcrypt from "bcrypt";
 
-import { HashService } from '../hash/hash.service';
-import { User } from '../users/entities/user.entity';
-import { UsersService } from '../users/users.service';
+import { User } from "../users/entities/user.entity";
+import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private hashService: HashService,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) {}
 
-  auth(user: User) {
-    const payload = { sub: user.id };
+  //генерируем accesToken согласно id и username
+  async generateAccessToken(user: User) {
+    const { id, username } = user;
 
-    return { access_token: this.jwtService.sign(payload) };
+    return {
+      access_token: await this.jwtService.signAsync({
+        sub: id,
+        username: username,
+      }),
+    };
   }
 
-  async validatePassword(username: string, password: string): Promise<null | User> {
+  //проверка учетных данных
+  async validateCredentials(username: string, password: string): Promise<User> {
     const user = await this.usersService.findByUsername(username);
 
     if (!user) {
-      return null;
+      throw new BadRequestException("Не найден юзер с данным логином");
     }
 
-    const hasMatch = await this.hashService.compare(password, user.password);
-
-    if (!hasMatch) {
-      throw new UnauthorizedException('Ошибка! Неверные учетные данные');
+    if (!(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedException("Ошибка авторизации, неверные данные");
     }
 
     return user;

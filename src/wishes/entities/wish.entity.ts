@@ -1,18 +1,23 @@
-import { IsNumber, IsUrl, Length } from 'class-validator';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { IsNumber, IsString, IsUrl, Length } from "class-validator";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 
-import { Offer } from '../../offers/entities/offer.entity';
-
-import { BaseEntity } from '../../shared/base.entity';
-
-import { User } from '../../users/entities/user.entity';
+import { Offer } from "../../offers/entities/offer.entity";
+import { BaseEntity } from "../../shared/base.entity";
+import { User } from "../../users/entities/user.entity";
 
 @Entity()
 export class Wish extends BaseEntity {
-  @Column({ default: 0, type: 'int' })
+  @Column({
+    default: 0,
+    type: "int",
+  })
+  @IsNumber()
   copied: number;
 
-  @Column({ length: 1024 })
+  @Column({
+    length: 1024,
+  })
+  @IsString()
   description: string;
 
   @Column()
@@ -24,6 +29,7 @@ export class Wish extends BaseEntity {
   link: string;
 
   @Column()
+  @IsString()
   @Length(1, 250)
   name: string;
 
@@ -34,26 +40,16 @@ export class Wish extends BaseEntity {
   owner: User;
 
   @Column({
-    precision: 10,
     scale: 2,
-    transformer: {
-      from: (value: string) => parseFloat(value),
-      to: (value: number) => value,
-    },
-    type: 'decimal',
+    type: "decimal",
   })
   @IsNumber()
   price: number;
 
   @Column({
     default: 0,
-    precision: 10,
     scale: 2,
-    transformer: {
-      from: (value: string) => parseFloat(value),
-      to: (value: number) => value,
-    },
-    type: 'decimal',
+    type: "decimal",
   })
   @IsNumber()
   raised: number;
